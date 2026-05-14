@@ -156,23 +156,45 @@
 
   <footer>made with 💕 just for you</footer>
 
-  <script>
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp }          from 'https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js';
+    import { getDatabase, ref, set, onValue }
+                                      from 'https://www.gstatic.com/firebasejs/11.1.0/firebase-database.js';
+
+    // ─── PASTE YOUR FIREBASE CONFIG HERE ───────────────────────────────────────
+    const firebaseConfig = {
+      apiKey:            "PASTE_API_KEY",
+      authDomain:        "PASTE_AUTH_DOMAIN",
+      databaseURL:       "PASTE_DATABASE_URL",
+      projectId:         "PASTE_PROJECT_ID",
+      storageBucket:     "PASTE_STORAGE_BUCKET",
+      messagingSenderId: "PASTE_MESSAGING_SENDER_ID",
+      appId:             "PASTE_APP_ID",
+    };
+    // ───────────────────────────────────────────────────────────────────────────
+
+    const app  = initializeApp(firebaseConfig);
+    const db   = getDatabase(app);
+    const moodRef = ref(db, 'eileen/mood');
+
     const moods = [
-      { id: 1, emoji: "🥂", label: "im lowkey in the mood",                          sub: "soft hints, say less~" },
-      { id: 2, emoji: "🔥", label: "im highkey in the mood",                          sub: "no subtlety here lol" },
-      { id: 3, emoji: "🥰", label: "im in the mood for cuddles & kisses",             sub: "soft hours activated" },
-      { id: 4, emoji: "😌", label: "i just wanna sit beside you & chill",             sub: "quiet company hits different" },
-      { id: 5, emoji: "😤", label: "im mad",                                             sub: "tread carefully bestie" },
-      { id: 6, emoji: "🥺", label: "i miss hanging out",                               sub: "we need a date asap" },
-      { id: 7, emoji: "🍕😤", label: "hunger & anger (hangry)",                         sub: "feed me first, talk later" },
-      { id: 8, emoji: "🐲", label: "novel-level freaky mood",                          sub: "you already know what it is" },
-      { id: 9, emoji: "🩸", label: "blood & bones",                                    sub: "period. literally." },
+      { id: 1, emoji: "🥂",    label: "im lowkey in the mood",               sub: "soft hints, say less~" },
+      { id: 2, emoji: "🔥",    label: "im highkey in the mood",               sub: "no subtlety here lol" },
+      { id: 3, emoji: "🥰",    label: "im in the mood for cuddles & kisses",  sub: "soft hours activated" },
+      { id: 4, emoji: "😌",    label: "i just wanna sit beside you & chill",  sub: "quiet company hits different" },
+      { id: 5, emoji: "😤",    label: "im mad",                               sub: "tread carefully bestie" },
+      { id: 6, emoji: "🥺",    label: "i miss hanging out",                   sub: "we need a date asap" },
+      { id: 7, emoji: "🍕😤",  label: "hunger & anger (hangry)",              sub: "feed me first, talk later" },
+      { id: 8, emoji: "🐲",    label: "novel-level freaky mood",              sub: "you already know what it is" },
+      { id: 9, emoji: "🩸",    label: "blood & bones",                        sub: "period. literally." },
     ];
 
-    const KEY = 'eileen_mood_v1';
     const list = document.getElementById('moodList');
+    let current = null; // track locally for instant toggle feel
 
     function render(active) {
+      current = active;
       list.innerHTML = '';
       moods.forEach(m => {
         const card = document.createElement('div');
@@ -188,16 +210,21 @@
           <span class="badge">current vibe</span>
         `;
         card.addEventListener('click', () => {
-          const next = m.id === active ? null : m.id;
-          localStorage.setItem(KEY, next ?? '');
+          const next = m.id === current ? null : m.id;
+          // optimistic local render for instant feel
           render(next);
+          // persist to Firebase (syncs across all devices)
+          set(moodRef, next);
         });
         list.appendChild(card);
       });
     }
 
-    const saved = localStorage.getItem(KEY);
-    render(saved ? parseInt(saved, 10) : null);
+    // listen for changes from Firebase — updates UI on ANY device in real-time
+    onValue(moodRef, snap => {
+      const val = snap.val();
+      render(val ? parseInt(val, 10) : null);
+    });
   </script>
 
 </body>
