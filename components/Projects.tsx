@@ -166,17 +166,14 @@ export default function Projects() {
       {/* Project cards */}
       <div className="flex flex-col gap-6">
         {projects.map((project) => (
-          <a
-            key={project.number}
-            href={project.href}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="project-item block group"
-          >
+          // Outer div carries the `group` so hover effects still work.
+          // The <a> sits as a transparent overlay on top — this avoids the
+          // invalid HTML of nesting <iframe> inside <a>, which breaks links.
+          <div key={project.number} className="project-item group relative">
             <div
               className="relative overflow-hidden rounded-sm"
               style={{
-                background: '#080808',          // fallback if iframe blocked
+                background: '#080808',
                 border: '1px solid rgba(255,255,255,0.06)',
                 minHeight: 380,
               }}
@@ -184,22 +181,18 @@ export default function Projects() {
               {/* ── Live iframe background ── */}
               <IframePreview src={project.href} />
 
-              {/* ── Dark gradient overlay — lightens slightly on hover ── */}
+              {/* ── Dark gradient overlay ── */}
               <div
-                className="absolute inset-0 transition-opacity duration-500"
+                className="absolute inset-0"
                 style={{
-                  // diagonal gradient: denser on left where text lives
                   background: 'linear-gradient(120deg, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0.55) 55%, rgba(0,0,0,0.30) 100%)',
                   zIndex: 1,
                 }}
               />
-              {/* Extra hover-reveal layer (becomes transparent on hover) */}
+              {/* Extra reveal layer — fades on hover */}
               <div
                 className="absolute inset-0 opacity-100 group-hover:opacity-0 transition-opacity duration-500"
-                style={{
-                  background: 'rgba(0,0,0,0.25)',
-                  zIndex: 2,
-                }}
+                style={{ background: 'rgba(0,0,0,0.25)', zIndex: 2 }}
               />
 
               {/* ── Content ── */}
@@ -257,8 +250,18 @@ export default function Projects() {
                   ))}
                 </div>
               </div>
+
+              {/* ── Transparent full-card link on top of everything ── */}
+              <a
+                href={project.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="absolute inset-0"
+                style={{ zIndex: 20 }}
+                aria-label={`View ${project.name}`}
+              />
             </div>
-          </a>
+          </div>
         ))}
       </div>
     </section>
