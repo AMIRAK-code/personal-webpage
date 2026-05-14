@@ -1,0 +1,107 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #0a0a0a;
+  --text: #e8e3da;
+  --muted: #4a4a4a;
+  --border: rgba(255, 255, 255, 0.07);
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html {
+  background: var(--bg);
+  color: var(--text);
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  overflow-x: hidden;
+  cursor: none;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 3px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--muted); border-radius: 2px; }
+
+/* Selection */
+::selection {
+  background: var(--text);
+  color: var(--bg);
+}
+
+/* Grain overlay */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9998;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 200px 200px;
+  opacity: 0.045;
+  mix-blend-mode: overlay;
+}
+
+/* Text reveal utility */
+.clip-wrap {
+  overflow: hidden;
+  display: block;
+}
+
+.reveal-text {
+  display: block;
+  will-change: transform;
+}
+
+/* Section divider */
+.section-line {
+  width: 100%;
+  height: 1px;
+  background: var(--border);
+}
+
+/* Link hover underline */
+.link-underline {
+  position: relative;
+  display: inline-block;
+}
+
+.link-underline::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: var(--text);
+  transition: width 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.link-underline:hover::after {
+  width: 100%;
+}
+
+/* Project card hover */
+.project-card {
+  transition: background-color 0.4s ease;
+}
+
+.project-card:hover {
+  background-color: rgba(255, 255, 255, 0.02);
+}
+
+/* Smooth transitions */
+a, button {
+  cursor: none;
+  transition: color 0.2s ease, opacity 0.2s ease;
+}

@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>3D Demos — Option 01 & 02</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #0a0a0a;
+      --text: #e8e3da;
+      --muted: rgba(232,227,218,0.28);
+      --border: rgba(255,255,255,0.07);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Space Mono', monospace;
+      overflow-x: hidden;
+      height: 500vh; /* scrollable */
+      cursor: crosshair;
+    }
+
+    /* ── Canvas ──────────────────────────────── */
+    #canvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+    }
+
+    /* ── Grain ───────────────────────────────── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 9;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-size: 200px;
+      opacity: 0.045;
+      mix-blend-mode: overlay;
+    }
+
+    /* ── UI layer ────────────────────────────── */
+    .ui {
+      position: fixed;
+      inset: 0;
+      z-index: 10;
+      pointer-events: none;
+    }
+
+    /* Top bar */
+    .topbar {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 28px 44px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .tag {
+      font-size: 10px;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    /* Center divider */
+    .divider {
+      position: absolute;
+      top: 0; bottom: 0;
+      left: 50%;
+      width: 1px;
+      background: var(--border);
+    }
+
+    .divider-label {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: var(--bg);
+      border: 1px solid var(--border);
+      padding: 10px 18px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .divider-label span {
+      font-size: 9px;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    /* Bottom labels */
+    .bottom-labels {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      border-top: 1px solid var(--border);
+    }
+
+    .panel-label {
+      padding: 28px 44px;
+    }
+
+    .panel-label:first-child {
+      border-right: 1px solid var(--border);
+    }
+
+    .panel-label:last-child {
+      text-align: right;
+    }
+
+    .panel-num {
+      font-size: 9px;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .panel-name {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 900;
+      font-size: clamp(28px, 4vw, 52px);
+      letter-spacing: -0.02em;
+      line-height: 0.9;
+    }
+
+    .panel-sub {
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 8px;
+      line-height: 1.6;
+    }
+
+    /* Scroll progress */
+    .progress-bar {
+      position: absolute;
+      bottom: 0; left: 0;
+      height: 2px;
+      background: rgba(232,227,218,0.18);
+      transition: width 0.1s linear;
+      width: 0%;
+    }
+
+    /* Toggle button — pointer-events back on */
+    .torus-toggle {
+      position: absolute;
+      top: 86px;
+      left: 50%;
+      transform: translateX(-50%);
+      pointer-events: all;
+      font-family: 'Space Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      background: rgba(10,10,10,0.9);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 9px 18px;
+      cursor: pointer;
+      transition: border-color 0.25s, color 0.25s;
+      white-space: nowrap;
+    }
+
+    .torus-toggle:hover {
+      border-color: rgba(255,255,255,0.25);
+      color: var(--text);
+    }
+
+    /* Scroll hint */
+    .scroll-hint {
+      position: absolute;
+      bottom: 110px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .scroll-hint span {
+      font-size: 9px;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .scroll-hint-line {
+      width: 1px;
+      height: 44px;
+      background: linear-gradient(to bottom, var(--muted), transparent);
+    }
+
+    /* Scroll %, shown per-panel */
+    .panel-stat {
+      position: absolute;
+      top: 84px;
+      font-size: 9px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+      transition: color 0.2s;
+    }
+
+    .stat-left  { left: 44px; }
+    .stat-right { right: 44px; text-align: right; }
+  </style>
+</head>
+<body>
+
+  <canvas id="canvas"></canvas>
+
+  <div class="ui">
+    <!-- Top bar -->
+    <div class="topbar">
+      <span class="tag">Amir Akbari — 3D Background Demos</span>
+      <span class="tag" id="fpsLabel">— fps</span>
+    </div>
+
+    <!-- Per-panel scroll stats -->
+    <div class="panel-stat stat-left" id="statLeft">Rotation · 0%</div>
+    <div class="panel-stat stat-right" id="statRight">Scatter · 0%</div>
+
+    <!-- Center divider -->
+    <div class="divider">
+      <div class="divider-label">
+        <span>vs</span>
+      </div>
+    </div>
+
+    <!-- Toggle torus material -->
+    <button class="torus-toggle" id="toggleBtn">⬡ Torus: Wireframe → Chrome</button>
+
+    <!-- Scroll hint -->
+    <div class="scroll-hint" id="scrollHint">
+      <span>scroll to interact</span>
+      <div class="scroll-hint-line"></div>
+    </div>
+
+    <!-- Bottom labels -->
+    <div class="bottom-labels">
+      <div class="panel-label">
+        <div class="panel-num">Option 01</div>
+        <div class="panel-name">Torus<br>Knot</div>
+        <div class="panel-sub">
+          p=2 q=3 · 300 segments<br>
+          Scroll → rotation · Mouse → tilt
+        </div>
+      </div>
+      <div class="panel-label">
+        <div class="panel-num">Option 02</div>
+        <div class="panel-name">Particle<br>Sphere</div>
+        <div class="panel-sub">
+          5 000 pts · Fibonacci dist.<br>
+          Scroll → scatter · Mouse → orbit
+        </div>
+      </div>
+    </div>
+
+    <!-- Progress bar -->
+    <div class="progress-bar" id="progressBar"></div>
+  </div>
+
+  <script type="importmap">
+    { "imports": { "three": "https://unpkg.com/three@0.171.0/build/three.module.js" } }
+  </script>
+
+  <script type="module">
+    import * as THREE from 'three'
+
+    // ── Renderer ─────────────────────────────────────────────────────────
+    const canvas  = document.getElementById('canvas')
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true })
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+    renderer.setSize(window.innerWidth, window.innerHeight)
+    renderer.setClearColor(0x0a0a0a, 1)
+    renderer.autoClear = false
+
+    // ─────────────────────────────────────────────────────────────────────
+    // SCENE 1 ── TORUS KNOT (left half)
+    // ─────────────────────────────────────────────────────────────────────
+    const scene1 = new THREE.Scene()
+    const cam1   = new THREE.PerspectiveCamera(52, halfAspect(), 0.1, 100)
+    cam1.position.z = 5.5
+
+    // Geometry
+    const knotGeo = new THREE.TorusKnotGeometry(1.45, 0.4, 320, 32, 2, 3)
+
+    // Wireframe material
+    const wireMat = new THREE.MeshBasicMaterial({
+      color: 0xaaaaaa,
+      wireframe: true,
+      transparent: true,
+      opacity: 0.2,
+    })
+
+    // Chrome material
+    const chromeMat = new THREE.MeshStandardMaterial({
+      color: 0x1c1c1c,
+      metalness: 1.0,
+      roughness: 0.05,
+    })
+
+    let useChrome = false
+    const knot = new THREE.Mesh(knotGeo, wireMat)
+    scene1.add(knot)
+
+    // Lights (only matter in chrome mode, but always in scene)
+    scene1.add(new THREE.AmbientLight(0xffffff, 0.3))
+
+    const keyLight  = new THREE.DirectionalLight(0xffffff, 4)
+    keyLight.position.set(3, 4, 5)
+    scene1.add(keyLight)
+
+    const rimLight  = new THREE.PointLight(0x4499ff, 7, 22)
+    rimLight.position.set(-5, 2, -4)
+    scene1.add(rimLight)
+
+    const fillLight = new THREE.PointLight(0xff7744, 4, 18)
+    fillLight.position.set(5, -4, 3)
+    scene1.add(fillLight)
+
+    const topLight  = new THREE.PointLight(0xffffff, 2, 15)
+    topLight.position.set(0, 8, 2)
+    scene1.add(topLight)
+
+    // Toggle chrome / wireframe
+    document.getElementById('toggleBtn').addEventListener('click', e => {
+      useChrome   = !useChrome
+      knot.material = useChrome ? chromeMat : wireMat
+      e.currentTarget.textContent = useChrome
+        ? '⬡ Torus: Chrome → Wireframe'
+        : '⬡ Torus: Wireframe → Chrome'
+    })
+
+    // ─────────────────────────────────────────────────────────────────────
+    // SCENE 2 ── PARTICLE SPHERE (right half)
+    // ─────────────────────────────────────────────────────────────────────
+    const scene2 = new THREE.Scene()
+    const cam2   = new THREE.PerspectiveCamera(52, halfAspect(), 0.1, 100)
+    cam2.position.z = 7.5
+
+    const COUNT = 5000
+
+    // Allocate position buffers
+    const spherePos  = new Float32Array(COUNT * 3)
+    const scatterPos = new Float32Array(COUNT * 3)
+    const livePos    = new Float32Array(COUNT * 3)
+
+    // Fibonacci sphere — perfectly even distribution
+    const PHI = Math.PI * (3 - Math.sqrt(5))
+    for (let i = 0; i < COUNT; i++) {
+      const y     = 1 - (i / (COUNT - 1)) * 2        // −1 … +1
+      const r     = Math.sqrt(Math.max(0, 1 - y * y)) * 2.6
+      const theta = PHI * i
+      spherePos[i*3]     = Math.cos(theta) * r
+      spherePos[i*3 + 1] = y * 2.6
+      spherePos[i*3 + 2] = Math.sin(theta) * r
+    }
+
+    // Random scatter cloud
+    for (let i = 0; i < COUNT; i++) {
+      // Scatter to a larger sphere shell so it looks like an explosion
+      const r = 6 + Math.random() * 8
+      const u = Math.random()
+      const v = Math.random()
+      const theta = 2 * Math.PI * u
+      const phi   = Math.acos(2 * v - 1)
+      scatterPos[i*3]     = r * Math.sin(phi) * Math.cos(theta)
+      scatterPos[i*3 + 1] = r * Math.sin(phi) * Math.sin(theta)
+      scatterPos[i*3 + 2] = r * Math.cos(phi)
+    }
+
+    livePos.set(spherePos)
+
+    const partGeo = new THREE.BufferGeometry()
+    partGeo.setAttribute('position', new THREE.BufferAttribute(livePos, 3))
+
+    // Soft glow sprite texture (canvas-generated)
+    const spriteCvs  = document.createElement('canvas')
+    spriteCvs.width  = spriteCvs.height = 64
+    const sCtx = spriteCvs.getContext('2d')
+    const grd  = sCtx.createRadialGradient(32, 32, 0, 32, 32, 32)
+    grd.addColorStop(0,   'rgba(232,227,218,1)')
+    grd.addColorStop(0.25,'rgba(232,227,218,0.7)')
+    grd.addColorStop(0.6, 'rgba(210,200,185,0.2)')
+    grd.addColorStop(1,   'rgba(0,0,0,0)')
+    sCtx.fillStyle = grd
+    sCtx.fillRect(0, 0, 64, 64)
+    const spriteTex = new THREE.CanvasTexture(spriteCvs)
+
+    const partMat = new THREE.PointsMaterial({
+      size:           0.075,
+      sizeAttenuation: true,
+      map:            spriteTex,
+      transparent:    true,
+      blending:       THREE.AdditiveBlending,
+      depthWrite:     false,
+      opacity:        0.85,
+    })
+
+    const particles = new THREE.Points(partGeo, partMat)
+    scene2.add(particles)
+
+    // ── Shared state ──────────────────────────────────────────────────────
+    let scroll    = 0, targetScroll = 0
+    let mouseX    = 0, mouseY       = 0
+    let tMouseX   = 0, tMouseY      = 0
+
+    window.addEventListener('scroll', () => {
+      const max     = document.documentElement.scrollHeight - window.innerHeight
+      targetScroll  = max > 0 ? window.scrollY / max : 0
+      document.getElementById('progressBar').style.width = (targetScroll * 100) + '%'
+    })
+
+    window.addEventListener('mousemove', e => {
+      tMouseX = (e.clientX / window.innerWidth  - 0.5) * 2
+      tMouseY = -(e.clientY / window.innerHeight - 0.5) * 2
+    })
+
+    window.addEventListener('resize', () => {
+      renderer.setSize(window.innerWidth, window.innerHeight)
+      const a = halfAspect()
+      cam1.aspect = a; cam1.updateProjectionMatrix()
+      cam2.aspect = a; cam2.updateProjectionMatrix()
+    })
+
+    // ── FPS counter ───────────────────────────────────────────────────────
+    let lastTime = performance.now()
+    let frames   = 0
+    const fpsEl  = document.getElementById('fpsLabel')
+
+    // ── Animate ───────────────────────────────────────────────────────────
+    const clock = new THREE.Clock()
+
+    function animate() {
+      requestAnimationFrame(animate)
+      const t = clock.getElapsedTime()
+
+      // FPS
+      frames++
+      const now = performance.now()
+      if (now - lastTime >= 1000) {
+        fpsEl.textContent = frames + ' fps'
+        frames = 0
+        lastTime = now
+      }
+
+      // Smooth state
+      scroll  += (targetScroll - scroll)  * 0.04
+      mouseX  += (tMouseX - mouseX)       * 0.05
+      mouseY  += (tMouseY - mouseY)       * 0.05
+
+      // Ease-in-out scroll for particle scatter
+      const s = scroll
+      const ease = s < 0.5 ? 2*s*s : 1 - Math.pow(-2*s + 2, 2) / 2
+
+      // Update stat labels
+      document.getElementById('statLeft').textContent  = `Rotation · ${Math.round(s * 100)}%`
+      document.getElementById('statRight').textContent = `Scatter  · ${Math.round(ease * 100)}%`
+
+      // Hide scroll hint once started
+      if (s > 0.02) document.getElementById('scrollHint').style.opacity = Math.max(0, 1 - s * 10).toString()
+
+      // ── Torus knot ─────────────────────────────────────────────────────
+      knot.rotation.x = t * 0.22 + s * Math.PI * 4.5
+      knot.rotation.y = t * 0.15 + mouseX * 0.55
+      knot.rotation.z = t * 0.09 + mouseY * 0.35
+      knot.scale.setScalar(1 + Math.sin(t * 0.65) * 0.025)
+
+      // Orbit lights for dynamic chrome reflections
+      rimLight.position.set(Math.sin(t * 0.45) * 7, Math.cos(t * 0.35) * 5, Math.cos(t * 0.55) * -4)
+      fillLight.position.set(Math.cos(t * 0.5) * 6, Math.sin(t * 0.7) * -5, Math.sin(t * 0.4) * 3)
+
+      // ── Particle sphere ────────────────────────────────────────────────
+      particles.rotation.y = t * 0.07 + mouseX * 0.35
+      particles.rotation.x = mouseY * 0.22 + Math.sin(t * 0.11) * 0.18
+
+      // Lerp each particle toward scatter or sphere
+      const pos = partGeo.attributes.position.array
+      const lerpSpeed = 0.032
+      for (let i = 0; i < COUNT; i++) {
+        const i3 = i * 3
+        pos[i3]   += (lerp(spherePos[i3],   scatterPos[i3],   ease) - pos[i3])   * lerpSpeed
+        pos[i3+1] += (lerp(spherePos[i3+1], scatterPos[i3+1], ease) - pos[i3+1]) * lerpSpeed
+        pos[i3+2] += (lerp(spherePos[i3+2], scatterPos[i3+2], ease) - pos[i3+2]) * lerpSpeed
+      }
+      partGeo.attributes.position.needsUpdate = true
+
+      // Particle material tweaks on scatter
+      partMat.opacity = 0.85 - ease * 0.35
+      partMat.size    = 0.075 + ease * 0.04
+
+      // ── Split render ───────────────────────────────────────────────────
+      const W    = window.innerWidth
+      const H    = window.innerHeight
+      const half = Math.floor(W / 2)
+
+      // Full clear (scissor off)
+      renderer.setScissorTest(false)
+      renderer.clear()
+      renderer.setScissorTest(true)
+
+      // Left: Torus Knot
+      renderer.setViewport(0, 0, half, H)
+      renderer.setScissor(0, 0, half, H)
+      renderer.render(scene1, cam1)
+
+      // Right: Particles
+      renderer.setViewport(half, 0, W - half, H)
+      renderer.setScissor(half, 0, W - half, H)
+      renderer.render(scene2, cam2)
+    }
+
+    function halfAspect() {
+      return (window.innerWidth / 2) / window.innerHeight
+    }
+
+    function lerp(a, b, t) {
+      return a + (b - a) * Math.max(0, Math.min(1, t))
+    }
+
+    // Set initial aspects
+    cam1.aspect = halfAspect(); cam1.updateProjectionMatrix()
+    cam2.aspect = halfAspect(); cam2.updateProjectionMatrix()
+
+    animate()
+  </script>
+
+</body>
+</html>
