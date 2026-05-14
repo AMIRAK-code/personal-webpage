@@ -190,8 +190,6 @@
         card.addEventListener('click', () => {
           const next = m.id === active ? null : m.id;
           localStorage.setItem(KEY, next ?? '');
-          // broadcast to all other open tabs/pages
-          try { new BroadcastChannel('eileen_mood').postMessage(1); } catch(_) {}
           render(next);
         });
         list.appendChild(card);
