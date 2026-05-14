@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>J.A.R.V.I.S. Protocol</title>
+    <style>
+        body { background: #000; color: #0ff; font-family: monospace; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; overflow: hidden; margin: 0; }
+        .reactor { width: 120px; height: 120px; border: 4px solid #0ff; border-radius: 50%; box-shadow: 0 0 40px #0ff; opacity: 0.5; transition: 0.3s; position: relative; }
+        .speaking { box-shadow: 0 0 120px #fff; border-color: #fff; opacity: 1; transform: scale(1.1); }
+        .error { border-color: red; box-shadow: 0 0 40px red; color: red; }
+        #logs { margin-top: 20px; font-size: 14px; color: #aaa; width: 90%; text-align: center; max-height: 150px; overflow-y: auto; background: #111; padding: 10px; border: 1px solid #333; }
+        button { margin-top: 40px; padding: 15px 40px; background: transparent; border: 1px solid #0ff; color: #0ff; font-size: 16px; cursor: pointer; letter-spacing: 2px; }
+    </style>
+</head>
+<body>
+
+    <div id="reactor" class="reactor"></div>
+    <div id="status">STANDBY</div>
+    <div id="logs">System logs...</div>
+    <button id="btn">INITIALIZE</button>
+
+    <script>
+        // --- CONFIGURATION ---
+        const WEBSOCKET_URL = 'wss://jarvis-server-bprk.onrender.com';
+        // ---------------------
+
+        const btn = document.getElementById('btn');
+        const status = document.getElementById('status');
+        const reactor = document.getElementById('reactor');
+        const logs = document.getElementById('logs');
+        
+        let ws, audioCtx, processor, source;
+
+        function log(msg) { logs.innerText = msg + "\n" + logs.innerText; }
+
+        btn.onclick = async () => {
+            btn.style.display = 'none';
+            status.innerText = "CONNECTING...";
+            log("Starting Audio Engine...");
+
+            try {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 24000 });
+                await audioCtx.resume();
+            } catch (e) {
+                log("Audio Init Failed: " + e.message);
+                return;
+            }
+
+            ws = new WebSocket(WEBSOCKET_URL);
+
+            ws.onopen = () => {
+                status.innerText = "ONLINE";
+                log("Connected to Server. Authenticating...");
+                setupMic();
+            };
+
+            ws.onmessage = async (event) => {
+                try {
+                    const text = await event.data.text();
+                    
+                    // CHECK FOR ERRORS
+                    if (text.includes("error") || text.includes("ERROR") || text.includes("Error")) {
+                        const json = JSON.parse(text);
+                        if (json.error) {
+                            log("❌ " + json.error);
+                            status.innerText = "ERROR";
+                            reactor.classList.add('error');
+                            return; // Stop processing
+                        }
+                    }
+
+                    // CHECK FOR AUDIO
+                    const response = JSON.parse(text);
+                    if (response.serverContent && response.serverContent.modelTurn) {
+                        const parts = response.serverContent.modelTurn.parts;
+                        for (const part of parts) {
+                            if (part.inlineData) {
+                                log("🔊 Audio Packet Received");
+                                playAudio(part.inlineData.data);
+                                reactor.classList.add('speaking');
+                                setTimeout(() => reactor.classList.remove('speaking'), 200);
+                            }
+                        }
+                    }
+                } catch (e) {
+                    // Ignore JSON errors for binary blobs
+                }
+            };
+            
+            ws.onclose = (e) => { 
+                status.innerText = "DISCONNECTED"; 
+                log(`Connection Closed. Code: ${e.code}`); 
+                btn.style.display = 'block'; 
+                reactor.classList.add('error');
+            };
+        };
+
+        function playAudio(base64Data) {
+            // FIXED ALGORITHM: Int16 -> Float32
+            const binaryString = atob(base64Data);
+            const len = binaryString.length;
+            const bytes = new Uint8Array(len);
+            for (let i = 0; i < len; i++) {
+                bytes[i] = binaryString.charCodeAt(i);
+            }
+            const int16Data = new Int16Array(bytes.buffer);
+            const float32Data = new Float32Array(int16Data.length);
+            for (let i = 0; i < int16Data.length; i++) {
+                float32Data[i] = int16Data[i] / 32768.0; 
+            }
+            const buffer = audioCtx.createBuffer(1, float32Data.length, 24000);
+            buffer.getChannelData(0).set(float32Data);
+            const source = audioCtx.createBufferSource();
+            source.buffer = buffer;
+            source.connect(audioCtx.destination);
+            source.start(0);
+        }
+
+        async function setupMic() {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            source = audioCtx.createMediaStreamSource(stream);
+            processor = audioCtx.createScriptProcessor(4096, 1, 1);
+
+            processor.onaudioprocess = (e) => {
+                const input = e.inputBuffer.getChannelData(0);
+                // Downsample to 16kHz
+                const ratio = audioCtx.sampleRate / 16000;
+                const newLength = Math.floor(input.length / ratio);
+                const pcm16 = new Int16Array(newLength);
+                for (let i = 0; i < newLength; i++) {
+                    let s = Math.max(-1, Math.min(1, input[Math.floor(i * ratio)]));
+                    pcm16[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+                }
+                const base64 = btoa(String.fromCharCode(...new Uint8Array(pcm16.buffer)));
+
+                if (ws.readyState === WebSocket.OPEN) {
+                    ws.send(JSON.stringify({
+                        realtimeInput: { mediaChunks: [{ mimeType: "audio/pcm", data: base64 }] }
+                    }));
+                }
+            };
+            source.connect(processor);
+            processor.connect(audioCtx.destination);
+        }
+    </script>
+</body>
+</html>

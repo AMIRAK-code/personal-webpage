@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BTC Advisor | Professional Crypto Consulting</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Reset & Base Styles */
+        :root {
+            --bg-color: #050505;
+            --card-bg: #121212;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+            --accent-blue: #00d4ff;
+            --accent-dark-blue: #0056b3;
+            --gradient-blue: linear-gradient(135deg, #00d4ff 0%, #0056b3 100%);
+            --font-main: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-main);
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+            transition: var(--transition);
+        }
+
+        ul {
+            list-style: none;
+        }
+
+        /* Utility Classes */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+        }
+
+        .btn-primary {
+            background: var(--gradient-blue);
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 212, 255, 0.5);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--accent-blue);
+            color: var(--accent-blue);
+        }
+
+        .btn-outline:hover {
+            background: var(--accent-blue);
+            color: var(--bg-color);
+        }
+
+        .text-gradient {
+            background: var(--gradient-blue);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Header */
+        header {
+            padding: 20px 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            background: rgba(5, 5, 5, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .nav-links a:hover {
+            color: var(--accent-blue);
+        }
+
+        /* Hero Section */
+        .hero {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(0, 212, 255, 0.1) 0%, rgba(5, 5, 5, 0) 70%);
+            z-index: -1;
+            animation: pulse 10s infinite alternate;
+        }
+
+        .hero-content h1 {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            line-height: 1.1;
+        }
+
+        .hero-content p {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin-bottom: 40px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Features Section */
+        .features {
+            padding: 100px 0;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .section-title h2 {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+
+        .section-title p {
+            color: var(--text-secondary);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: var(--transition);
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            border-color: var(--accent-blue);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .card-icon {
+            font-size: 2rem;
+            color: var(--accent-blue);
+            margin-bottom: 20px;
+        }
+
+        .card h3 {
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+
+        .card p {
+            color: var(--text-secondary);
+        }
+
+        /* Footer */
+        footer {
+            padding: 50px 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+            color: var(--text-secondary);
+        }
+
+        /* Animations */
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 0.5;
+            }
+
+            100% {
+                transform: scale(1.2);
+                opacity: 0.8;
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero-content h1 {
+                font-size: 2.5rem;
+            }
+
+            .nav-links {
+                display: none;
+                /* Simple mobile hide for now */
+            }
+        }
+
+        /* Market Data Section */
+        .market-data {
+            padding: 80px 0;
+            background: var(--bg-color);
+        }
+
+        .chart-wrapper {
+            margin-bottom: 40px;
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            /* Ensure no spillover */
+        }
+
+        .chart-wrapper.large {
+            width: 100%;
+            max-width: 700px;
+            /* Limit width for better square appearance */
+            aspect-ratio: 1 / 1;
+            /* Force square shape */
+            height: auto;
+            /* Let aspect ratio control height */
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .chart-wrapper.small {
+            height: 400px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .tradingview-widget-container {
+            height: 100%;
+            width: 100%;
+        }
+
+        .tradingview-widget-container>div {
+            height: 100%;
+            width: 100%;
+        }
+
+        /* Special CTA Button */
+        .btn-special {
+            background: linear-gradient(45deg, #ff0055, #ff5500);
+            color: white;
+            font-size: 1.1rem;
+            padding: 15px 40px;
+            box-shadow: 0 0 20px rgba(255, 85, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .btn-special::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
+            z-index: -1;
+        }
+
+        .btn-special:hover::before {
+            left: 100%;
+        }
+
+        .btn-special:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 10px 30px rgba(255, 85, 0, 0.6);
+        }
+
+        /* Pulse Animation for Button */
+        .pulse-anim {
+            animation: btnPulse 2s infinite;
+        }
+
+        @keyframes btnPulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(255, 85, 0, 0.7);
+            }
+
+            70% {
+                box-shadow: 0 0 0 15px rgba(255, 85, 0, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(255, 85, 0, 0);
+            }
+        }
+
+        /* Ticker Tape */
+        .ticker-wrapper {
+            width: 100%;
+            overflow: hidden;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            background: var(--card-bg);
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <div class="container">
+            <nav>
+                <a href="#" class="logo">BTC <span class="text-gradient">Advisor</span></a>
+                <ul class="nav-links">
+                    <li><a href="#home">Home</a></li>
+                    <li><a href="#market-data">Markets</a></li>
+                    <li><a href="#services">Services</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                </ul>
+                <a href="#contact" class="btn btn-outline">Get Started</a>
+            </nav>
+        </div>
+        <!-- Ticker Tape Widget -->
+        <div class="ticker-wrapper">
+            <div class="tradingview-widget-container">
+                <div class="tradingview-widget-container__widget"></div>
+                <script type="text/javascript"
+                    src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
+                        {
+                            "symbols": [
+                                {
+                                    "proName": "FOREXCOM:SPXUSD",
+                                    "title": "S&P 500"
+                                },
+                                {
+                                    "proName": "FOREXCOM:NSXUSD",
+                                    "title": "US 100"
+                                },
+                                {
+                                    "description": "Gold",
+                                    "proName": "OANDA:XAUUSD"
+                                },
+                                {
+                                    "description": "Silver",
+                                    "proName": "OANDA:XAGUSD"
+                                },
+                                {
+                                    "description": "Oil",
+                                    "proName": "TVC:USOIL"
+                                }
+                            ],
+                                "showSymbolLogo": true,
+                                    "colorTheme": "dark",
+                                        "isTransparent": false,
+                                            "displayMode": "adaptive",
+                                                "locale": "en"
+                        }
+                    </script>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section id="home" class="hero">
+            <div class="container hero-content">
+                <h1>Navigate the <br><span class="text-gradient">Crypto Future</span></h1>
+                <p>Professional Bitcoin advisory and portfolio management for serious investors. Secure your wealth with
+                    expert guidance.</p>
+                <div class="hero-btns">
+                    <a href="#market-data" class="btn btn-primary">Live Markets</a>
+                    <a href="#services" class="btn btn-outline">Our Services</a>
+                </div>
+                <div class="hero-cta-wrapper" style="margin-top: 30px;">
+                    <a href="#" class="btn btn-special pulse-anim">Should I buy or sell now?</a>
+                </div>
+            </div>
+        </section>
+
+        <section id="market-data" class="market-data">
+            <div class="container">
+                <div class="section-title">
+                    <h2>Live Market Data</h2>
+                    <p>Real-time analysis of the global economy</p>
+                </div>
+
+                <!-- Large BTC Chart -->
+                <div class="chart-wrapper large">
+                    <div class="tradingview-widget-container">
+                        <div id="tradingview_btc"></div>
+                        <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+                        <script type="text/javascript">
+                            new TradingView.widget(
+                                {
+                                    "autosize": true,
+                                    "symbol": "BINANCE:BTCUSDT",
+                                    "interval": "D",
+                                    "timezone": "Etc/UTC",
+                                    "theme": "dark",
+                                    "style": "1",
+                                    "locale": "en",
+                                    "enable_publishing": false,
+                                    "withdateranges": true,
+                                    "hide_side_toolbar": false,
+                                    "allow_symbol_change": true,
+                                    "container_id": "tradingview_btc"
+                                }
+                            );
+                        </script>
+                    </div>
+                </div>
+
+                <!-- Small USDT.D Chart -->
+                <div class="chart-wrapper small">
+                    <div class="tradingview-widget-container">
+                        <div id="tradingview_usdt_d"></div>
+                        <script type="text/javascript">
+                            new TradingView.widget(
+                                {
+                                    "autosize": true,
+                                    "symbol": "CRYPTOCAP:USDT.D",
+                                    "interval": "D",
+                                    "timezone": "Etc/UTC",
+                                    "theme": "dark",
+                                    "style": "2",
+                                    "locale": "en",
+                                    "enable_publishing": false,
+                                    "withdateranges": true,
+                                    "hide_side_toolbar": true,
+                                    "allow_symbol_change": false,
+                                    "container_id": "tradingview_usdt_d"
+                                }
+                            );
+                        </script>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="services" class="features">
+            <div class="container">
+                <div class="section-title">
+                    <h2>Our Services</h2>
+                    <p>Comprehensive solutions for your crypto journey</p>
+                </div>
+                <div class="grid">
+                    <div class="card">
+                        <div class="card-icon">🛡️</div>
+                        <h3>Security Audits</h3>
+                        <p>Ensure your assets are safe with our rigorous security protocols and cold storage advice.</p>
+                    </div>
+                    <div class="card">
+                        <div class="card-icon">📈</div>
+                        <h3>Market Analysis</h3>
+                        <p>Real-time insights and deep-dive technical analysis to keep you ahead of the market.</p>
+                    </div>
+                    <div class="card">
+                        <div class="card-icon">💼</div>
+                        <h3>Portfolio Management</h3>
+                        <p>Tailored strategies to maximize returns while managing risk according to your profile.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 BTC Advisor. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- GSAP Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
+    <script src="assets/js/script.js"></script>
+</body>
+
+</html>
