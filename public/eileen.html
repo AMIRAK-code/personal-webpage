@@ -212,7 +212,7 @@
         .from('eileen_mood')
         .select('mood_id')
         .eq('id', 1)
-        .single();
+        .maybeSingle();
       render(data?.mood_id ?? null);
     }
 
