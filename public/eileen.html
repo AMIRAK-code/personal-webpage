@@ -156,15 +156,14 @@
 
   <footer>made with 💕 just for you</footer>
 
-  <!-- Supabase SDK -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script>
-    // ─── PASTE YOUR SUPABASE CREDENTIALS HERE ──────────────────────────────────
+  <!-- Supabase SDK (latest v2) -->
+  <script type="module">
+    import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
     const SUPABASE_URL      = 'https://vitwodoehubvwrlkbbwh.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_5UwRdDOALsqBzsH9SyU1yg_u1y9qDBx';
-    // ───────────────────────────────────────────────────────────────────────────
 
-    const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     const moods = [
       { id: 1, emoji: "🥂",   label: "im lowkey in the mood",               sub: "soft hints, say less~" },
