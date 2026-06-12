@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Saga's Vibe ✨</title>
+  <title>Saga's Forest Vibe 🦌✨</title>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -11,32 +11,66 @@
     body {
       font-family: 'Nunito', sans-serif;
       min-height: 100vh;
-      background: linear-gradient(135deg, #fce4ec 0%, #f3e5f5 50%, #e8eaf6 100%);
+      background: linear-gradient(160deg, #e8f5e9 0%, #f1f8e9 35%, #fff8e1 70%, #fce4ec 100%);
       display: flex;
       flex-direction: column;
       align-items: center;
       padding: 2.5rem 1rem 3rem;
       transition: background 0.6s ease;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* floating fairy sparkles */
+    .sparkle {
+      position: fixed;
+      font-size: 14px;
+      pointer-events: none;
+      opacity: 0.7;
+      animation: floatUp linear infinite;
+      z-index: 0;
+    }
+
+    @keyframes floatUp {
+      0%   { transform: translateY(105vh) rotate(0deg) scale(0.8); opacity: 0; }
+      12%  { opacity: 0.85; }
+      88%  { opacity: 0.6; }
+      100% { transform: translateY(-8vh) rotate(360deg) scale(1.1); opacity: 0; }
     }
 
     header {
       text-align: center;
-      margin-bottom: 2rem;
+      margin-bottom: 1.2rem;
+      position: relative;
+      z-index: 2;
     }
 
     header h1 {
-      font-size: 2.4rem;
+      font-size: 2.2rem;
       font-weight: 900;
-      color: #c2185b;
-      text-shadow: 2px 2px 0 #f8bbd0;
+      color: #33691e;
+      text-shadow: 2px 2px 0 #dcedc8;
       letter-spacing: -0.5px;
     }
 
     header p {
       margin-top: 0.4rem;
       font-size: 0.9rem;
-      color: #ad1457;
-      opacity: 0.75;
+      color: #558b2f;
+      opacity: 0.8;
+    }
+
+    /* deer illustration */
+    .deer-wrap {
+      margin-bottom: 1.4rem;
+      position: relative;
+      z-index: 2;
+      animation: bob 3.5s ease-in-out infinite;
+    }
+
+    @keyframes bob {
+      0%, 100% { transform: translateY(0); }
+      50%      { transform: translateY(-7px); }
     }
 
     .moods {
@@ -45,26 +79,29 @@
       gap: 0.85rem;
       width: 100%;
       max-width: 520px;
+      position: relative;
+      z-index: 2;
     }
 
     .mood-card {
-      background: #ffffff;
+      background: rgba(255,255,255,0.92);
       border-radius: 18px;
       padding: 1rem 1.3rem;
       cursor: pointer;
       border: 3px solid transparent;
-      box-shadow: 0 3px 12px rgba(0,0,0,0.07);
+      box-shadow: 0 3px 12px rgba(51,105,30,0.10);
       display: flex;
       align-items: center;
       gap: 1rem;
       transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background 0.2s ease;
       position: relative;
       user-select: none;
+      backdrop-filter: blur(4px);
     }
 
     .mood-card:hover {
       transform: translateY(-2px);
-      box-shadow: 0 7px 22px rgba(0,0,0,0.11);
+      box-shadow: 0 7px 22px rgba(51,105,30,0.16);
     }
 
     .mood-card.active {
@@ -90,7 +127,7 @@
 
     .sub {
       font-size: 0.75rem;
-      color: #aaa;
+      color: #9e9e8e;
       margin-top: 0.15rem;
       font-weight: 600;
     }
@@ -99,7 +136,7 @@
       width: 20px;
       height: 20px;
       border-radius: 50%;
-      border: 3px solid #ddd;
+      border: 3px solid #dcedc8;
       flex-shrink: 0;
       transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
     }
@@ -125,36 +162,98 @@
 
     .mood-card.active .badge { opacity: 1; }
 
-    /* mood colour themes */
+    /* mood colour themes — forest & fairy palette */
     [data-mood="1"] { --accent:#e91e8c; --bg:#fce4ec; --shadow:rgba(233,30,140,0.18); }
-    [data-mood="2"] { --accent:#e53935; --bg:#ffebee; --shadow:rgba(229,57,53,0.18); }
+    [data-mood="2"] { --accent:#ef6c00; --bg:#fff3e0; --shadow:rgba(239,108,0,0.18); }
     [data-mood="3"] { --accent:#9c27b0; --bg:#f3e5f5; --shadow:rgba(156,39,176,0.18); }
-    [data-mood="4"] { --accent:#00acc1; --bg:#e0f7fa; --shadow:rgba(0,172,193,0.18); }
-    [data-mood="5"] { --accent:#ff5722; --bg:#fbe9e7; --shadow:rgba(255,87,34,0.18); }
-    [data-mood="6"] { --accent:#7b1fa2; --bg:#ede7f6; --shadow:rgba(123,31,162,0.18); }
-    [data-mood="7"] { --accent:#f57c00; --bg:#fff3e0; --shadow:rgba(245,124,0,0.18); }
-    [data-mood="8"] { --accent:#212121; --bg:#f5f5f5; --shadow:rgba(33,33,33,0.22); }
-    [data-mood="9"] { --accent:#b71c1c; --bg:#ffebee; --shadow:rgba(183,28,28,0.18); }
+    [data-mood="4"] { --accent:#43a047; --bg:#e8f5e9; --shadow:rgba(67,160,71,0.18); }
+    [data-mood="5"] { --accent:#5e35b1; --bg:#ede7f6; --shadow:rgba(94,53,177,0.18); }
+    [data-mood="6"] { --accent:#0288d1; --bg:#e1f5fe; --shadow:rgba(2,136,209,0.18); }
+    [data-mood="7"] { --accent:#f57c00; --bg:#fff8e1; --shadow:rgba(245,124,0,0.18); }
+    [data-mood="8"] { --accent:#388e3c; --bg:#f1f8e9; --shadow:rgba(56,142,60,0.20); }
+    [data-mood="9"] { --accent:#c62828; --bg:#ffebee; --shadow:rgba(198,40,40,0.18); }
 
     footer {
       margin-top: 2.5rem;
       font-size: 0.82rem;
-      color: #c2185b;
-      opacity: 0.55;
+      color: #558b2f;
+      opacity: 0.65;
       text-align: center;
+      position: relative;
+      z-index: 2;
+    }
+
+    /* bottom forest silhouette */
+    .forest-floor {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      pointer-events: none;
+      z-index: 1;
+      opacity: 0.5;
     }
   </style>
 </head>
 <body>
 
   <header>
-    <h1>Saga's Vibe Check ✨</h1>
-    <p>tap a mood · it saves automatically 💾</p>
+    <h1>Saga's Forest Vibe 🧚‍♀️</h1>
+    <p>tap a mood little deer · it flies to Moein instantly 🦌💌</p>
   </header>
+
+  <!-- baby deer SVG -->
+  <div class="deer-wrap">
+    <svg width="110" height="100" viewBox="0 0 110 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- body -->
+      <ellipse cx="52" cy="68" rx="26" ry="17" fill="#c8956c"/>
+      <!-- white spots -->
+      <circle cx="44" cy="62" r="2.4" fill="#fff8ef"/>
+      <circle cx="56" cy="59" r="2.1" fill="#fff8ef"/>
+      <circle cx="63" cy="66" r="2.3" fill="#fff8ef"/>
+      <circle cx="49" cy="71" r="2" fill="#fff8ef"/>
+      <!-- legs -->
+      <rect x="36" y="80" width="5" height="16" rx="2.4" fill="#b07d52"/>
+      <rect x="47" y="82" width="5" height="14" rx="2.4" fill="#b07d52"/>
+      <rect x="59" y="82" width="5" height="14" rx="2.4" fill="#b07d52"/>
+      <rect x="68" y="80" width="5" height="16" rx="2.4" fill="#b07d52"/>
+      <!-- neck & head -->
+      <ellipse cx="76" cy="46" rx="11" ry="13" fill="#c8956c"/>
+      <ellipse cx="80" cy="38" rx="11" ry="9.5" fill="#c8956c"/>
+      <!-- muzzle -->
+      <ellipse cx="88" cy="41" rx="6" ry="4.6" fill="#e8c9a8"/>
+      <ellipse cx="91.5" cy="40.5" rx="2.1" ry="1.8" fill="#5d4037"/>
+      <!-- eye -->
+      <circle cx="79" cy="36" r="2.6" fill="#3e2723"/>
+      <circle cx="80" cy="35.2" r="0.9" fill="#fff"/>
+      <!-- ears -->
+      <ellipse cx="72" cy="28" rx="4.2" ry="7" transform="rotate(-28 72 28)" fill="#c8956c"/>
+      <ellipse cx="72.6" cy="29" rx="2" ry="4" transform="rotate(-28 72.6 29)" fill="#e8c9a8"/>
+      <ellipse cx="83" cy="27" rx="4.2" ry="7" transform="rotate(18 83 27)" fill="#c8956c"/>
+      <ellipse cx="82.6" cy="28" rx="2" ry="4" transform="rotate(18 82.6 28)" fill="#e8c9a8"/>
+      <!-- tiny antler nubs -->
+      <rect x="74.5" y="19" width="2.4" height="7" rx="1.2" transform="rotate(-12 74.5 19)" fill="#8d6e63"/>
+      <rect x="80.5" y="18.5" width="2.4" height="7" rx="1.2" transform="rotate(10 80.5 18.5)" fill="#8d6e63"/>
+      <!-- tail -->
+      <ellipse cx="27" cy="63" rx="4.6" ry="3.4" fill="#e8c9a8"/>
+      <!-- flowers at feet -->
+      <circle cx="20" cy="93" r="3" fill="#f48fb1"/>
+      <circle cx="16" cy="90" r="2.2" fill="#ce93d8"/>
+      <circle cx="92" cy="94" r="2.8" fill="#fff176"/>
+      <circle cx="97" cy="91" r="2" fill="#f48fb1"/>
+      <path d="M20 96 Q20 90 20 88" stroke="#7cb342" stroke-width="1.4" stroke-linecap="round"/>
+      <path d="M92 97 Q92 92 92 90" stroke="#7cb342" stroke-width="1.4" stroke-linecap="round"/>
+    </svg>
+  </div>
 
   <div class="moods" id="moodList"></div>
 
-  <footer>made with 💕 just for you</footer>
+  <footer>made with 💚 across the distance · Moein 🤝 Saga</footer>
+
+  <!-- forest floor silhouette -->
+  <svg class="forest-floor" height="70" viewBox="0 0 1200 70" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M0 70 L0 48 Q40 38 70 48 L80 28 L92 48 Q130 36 170 46 L185 18 L200 46 Q250 34 300 44 L312 24 L326 44 Q380 32 430 44 L448 12 L466 44 Q520 34 570 46 L582 26 L596 46 Q650 36 700 46 L718 16 L736 46 Q790 34 840 44 L854 22 L868 44 Q920 34 970 46 L985 20 L1000 46 Q1050 36 1100 46 L1112 28 L1124 46 Q1165 38 1200 48 L1200 70 Z" fill="#a5d6a7"/>
+  </svg>
 
   <!-- Supabase SDK (latest v2) -->
   <script type="module">
@@ -166,15 +265,15 @@
     const client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     const moods = [
-      { id: 1, emoji: "🥂",   label: "im lowkey in the mood",               sub: "soft hints, say less~" },
-      { id: 2, emoji: "🔥",   label: "im highkey in the mood",               sub: "no subtlety here lol" },
-      { id: 3, emoji: "🥰",   label: "im in the mood for cuddles & kisses",  sub: "soft hours activated" },
-      { id: 4, emoji: "😌",   label: "i just wanna sit beside you & chill",  sub: "quiet company hits different" },
-      { id: 5, emoji: "😤",   label: "im mad",                               sub: "tread carefully bestie" },
-      { id: 6, emoji: "🥺",   label: "i miss hanging out",                   sub: "we need a date asap" },
-      { id: 7, emoji: "🍕😤", label: "hunger & anger (hangry)",              sub: "feed me first, talk later" },
-      { id: 8, emoji: "🐲",   label: "novel-level freaky mood",              sub: "you already know what it is" },
-      { id: 9, emoji: "🩸",   label: "blood & bones",                        sub: "period. literally." },
+      { id: 1, emoji: "🦌💕", label: "missing my Moein extra hard today",      sub: "distance is being rude rn" },
+      { id: 2, emoji: "📞🍂", label: "i need a call asap",                      sub: "voice > texts, come here" },
+      { id: 3, emoji: "🧚‍♀️✨", label: "feeling cute & fairy-like",             sub: "compliments will be accepted" },
+      { id: 4, emoji: "🌿😌", label: "calm forest mood, all is well",           sub: "soft & cozy, just checking in" },
+      { id: 5, emoji: "🌙💤", label: "sleepy little deer",                      sub: "wish you were my pillow" },
+      { id: 6, emoji: "✈️🗓️", label: "daydreaming about our next visit",       sub: "counting down the days" },
+      { id: 7, emoji: "🍄😤", label: "grumpy gremlin hours",                    sub: "send memes & affection carefully" },
+      { id: 8, emoji: "🌸🥰", label: "extra in love with you today",            sub: "no reason. just you." },
+      { id: 9, emoji: "🩸🍫", label: "blood & bones",                           sub: "period. send chocolate. literally." },
     ];
 
     const list = document.getElementById('moodList');
@@ -222,6 +321,19 @@
       .subscribe();
 
     init();
+
+    /* ── floating fairy sparkles ─────────────────────────────── */
+    const sparkles = ['✨','🦋','🌿','🧚‍♀️','🌸','⭐','🍃'];
+    for (let i = 0; i < 14; i++) {
+      const s = document.createElement('span');
+      s.className = 'sparkle';
+      s.textContent = sparkles[i % sparkles.length];
+      s.style.left = (Math.random() * 100) + 'vw';
+      s.style.animationDuration = (9 + Math.random() * 14) + 's';
+      s.style.animationDelay = (-Math.random() * 20) + 's';
+      s.style.fontSize = (10 + Math.random() * 12) + 'px';
+      document.body.appendChild(s);
+    }
   </script>
 
 </body>
